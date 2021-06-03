@@ -7,7 +7,7 @@ const {
     resetMeta,
     clone,
 } = require('@posthog/plugin-scaffold/test/utils.js')
-const { processEvent } = require('../index')
+const { onEvent } = require('../index')
 
 
 declare var posthog: {
@@ -18,7 +18,7 @@ global.posthog = {
     capture: jest.fn(),
 }
 
-test('processEvent tracks sessions correctly', async () => {
+test('onEvent tracks sessions correctly', async () => {
 
     const event0 = createEvent({ event: 'Event #0 in First Session', timestamp: '2021-04-16T13:10:00.070Z' })
     const event1 = createEvent({ event: 'Event #1 in First Session', timestamp: '2021-04-16T13:15:00.070Z' })
@@ -26,7 +26,7 @@ test('processEvent tracks sessions correctly', async () => {
 
 
     // Session 1 start tracked correctly
-    const processedEvent0 = await processEvent(clone(event0), getMeta())
+    const processedEvent0 = await onEvent(clone(event0), getMeta())
     expect(processedEvent0).toEqual({
         ...event0,
         properties: {
@@ -35,7 +35,7 @@ test('processEvent tracks sessions correctly', async () => {
     })
 
     // Session 1 second event not counted as a new start
-    const processedEvent1 = await processEvent(clone(event1), getMeta())
+    const processedEvent1 = await onEvent(clone(event1), getMeta())
     expect(processedEvent1).toEqual({
         ...event1,
         properties: {
@@ -44,7 +44,7 @@ test('processEvent tracks sessions correctly', async () => {
     })
 
     // Session 2 start tracked correctly
-    const processedEvent2 = await processEvent(clone(event2), getMeta())
+    const processedEvent2 = await onEvent(clone(event2), getMeta())
     expect(processedEvent2).toEqual({
         ...event2,
         properties: {
